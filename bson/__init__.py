@@ -30,16 +30,16 @@ For binaries, only the default 0x0 type is supported.
 ...   keys = obj.keys()
 ...   keys.sort()
 ...   for i in keys: yield i
-... 
+...
 >>> def reverse(obj, dfs_stack):
 ...   keys = obj.keys()
 ...   keys.sort(reverse = True)
 ...   for i in keys: yield i
-... 
+...
 >>> serialized = dumps(a, sorted)
 >>> serialized
 '\\x9f\\x00\\x00\\x00\\x02Item A\\x00\\x0e\\x00\\x00\\x00String item A\\x00\\x02Item B\\x00\\r\\x00\\x00\\x00\\xe4\\xb8\\x80\\xe9\\x96\\x80\\xe4\\xba\\x94\\xe5\\x82\\x91\\x00\\x04Item C\\x007\\x00\\x00\\x00\\x100\\x00\\x01\\x00\\x00\\x00\\x121\\x00y\\xdf\\r\\x86Hp\\x00\\x00\\n2\\x00\\x053\\x00\\x15\\x00\\x00\\x00\\x00Party and Bad Romance\\x00\\x03Item D\\x00 \\x00\\x00\\x00\\x02ROFLOL\\x00\\x0f\\x00\\x00\\x00Blah blah blah\\x00\\x00\\x00'
->>> 
+>>>
 >>> b = loads(serialized)
 >>> b
 {u'Item C': [1, 123456789012345, None, 'Party and Bad Romance'], u'Item B': u'\\u4e00\\u9580\\u4e94\\u5091', u'Item A': u'String item A', u'Item D': {u'ROFLOL': u'Blah blah blah'}}
@@ -75,7 +75,7 @@ def loads(data):
 	return decode_document(data, 0)[1]
 # }}}
 # {{{ Socket Patchers
-def patch_socket():
+def patch_socket(socket = None):
 	"""
 	Patches the Python socket class such that sockets can send and receive BSON
 	objects atomically.
@@ -88,9 +88,10 @@ def patch_socket():
 	recvobj() - reads a BSON document from the socket atomically and returns
 	the deserialized dictionary. Returns None if socket closed.
 
-	sendobj(obj) - sends a BSON document to the socket atomically. 
+	sendobj(obj) - sends a BSON document to the socket atomically.
 	"""
-	from socket import socket
+	if socket is None:
+	  from socket import socket
 	socket.recvbytes = network._recvbytes
 	socket.recvobj = network._recvobj
 	socket.sendobj = network._sendobj
